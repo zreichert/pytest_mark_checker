@@ -21,3 +21,12 @@ def test_happy_path():
     """)
     result = flake8dir.run_flake8(extra_args)
     assert result.out_lines == ['./example.py:1:1: M501 test definition not marked with test_id']
+
+
+def test_functions_that_are_not_tests(flake8dir):
+    flake8dir.make_example_py("""
+def not_a_test():
+    pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == []

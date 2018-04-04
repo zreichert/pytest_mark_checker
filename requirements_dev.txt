@@ -1,12 +1,4 @@
 tox
-docutils
 flake8
-futures
-isort
-modernize
-multilint
-pathlib
 pytest-flake8dir
 pytest
-testfixtures
-pytest-flake8dir

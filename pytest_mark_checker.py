@@ -1,10 +1,7 @@
 # -*- encoding:utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import ast
-
 import flake8
-
 import ast
 import re
 
@@ -21,7 +18,6 @@ class MarkChecker(object):
     version = __version__
 
     message_M501 = 'M501 test definition not marked with test_id'
-    message_M502 = 'M502 duplicate mark present for test_id'
 
     def __init__(self, tree, *args, **kwargs):
         self.tree = tree

@@ -18,11 +18,6 @@ Quick Start Guide
     $ python setup.py install
 
 
-Contributing
-------------
-
-See `CONTRIBUTING.rst`_ for more details on developing for the Pytest-mark-checker project.
-
 Credits
 -------
 
