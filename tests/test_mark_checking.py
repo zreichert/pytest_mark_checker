@@ -3,6 +3,7 @@
 # args to only use checks that raise an 'M' prefixed error
 extra_args = ['--select', 'M']
 
+
 def test_with_test_id_mark(flake8dir):
     flake8dir.make_example_py("""
 @pytest.mark.test_id('b360c12d-0d47-4cfc-9f9e-5d86c315b1e4')
