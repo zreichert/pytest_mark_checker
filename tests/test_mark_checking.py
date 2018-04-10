@@ -102,7 +102,7 @@ def test_a_usefixture_mark():
     assert result.out_lines == []
 
 
-def test_dont_validate_one_of_many(flake8dir):
+def test_multiple_marks(flake8dir):
     flake8dir.make_example_py("""
 @pytest.mark.foo
 @pytest.mark.skip(reason='Need implementation')
@@ -119,7 +119,7 @@ def test_a_parametrized_mark():
     assert result.out_lines == []
 
 
-def test_do_validate_one_of_many(flake8dir):
+def test_multiple_marks_no_id(flake8dir):
     flake8dir.make_example_py("""
 @pytest.mark.foo
 @pytest.mark.skip(reason='Need implementation')
