@@ -82,5 +82,5 @@ dist: clean ## builds source and wheel package
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
 
-develop: clean ## install necessary packages to setup a dev environment
+develop: clean install ## install necessary packages to setup a dev environment
 	pip install -r requirements_dev.txt
