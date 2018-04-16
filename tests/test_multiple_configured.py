@@ -9,14 +9,10 @@ four_marks_config = """
 [flake8]
 pytest_mark1 = name=test_id
                regex=[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}
-               autofix=uuid
-               
+               autofix=uuid               
 pytest_mark2 = name=foo
-
 pytest_mark3 = name=test_name
-
 pytest_mark4 = name=bla_bla
-
 """
 
 
@@ -31,7 +27,7 @@ def test_1():
 @pytest.mark.test_name('I am a test name')
 def test_2():
     pass
-    """)
+""")
     result = flake8dir.run_flake8(extra_args)
     observed = result.out_lines
     expected = ['./example.py:1:1: M502 test definition not marked with foo',
