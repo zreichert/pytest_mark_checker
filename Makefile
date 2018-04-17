@@ -84,3 +84,4 @@ install: clean ## install the package to the active Python's site-packages
 
 develop: clean ## install necessary packages to setup a dev environment
 	pip install -r requirements_dev.txt
+	pip install -e .
