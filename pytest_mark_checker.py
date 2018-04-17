@@ -37,7 +37,7 @@ class MarkChecker(object):
                 for single_line in mark_data:
                     a = [s.strip() for s in single_line.split('=')]
                     # whitelist the acceptable params
-                    if a[0] in ['name', 'value_match']:
+                    if a[0] in ['name', 'value_match', 'value_regex']:
                         parsed_params[a[0]] = a[1]
                 d[pytest_mark] = parsed_params
         cls.pytest_marks.update(d)
@@ -100,6 +100,7 @@ class MarkChecker(object):
             configured = False
             match = False
             detailed_error = None
+            attempt_value_match = False
             line_num = node.lineno
             if re.search(r'^test_', node.name):
                 for decorator in node.decorator_list:
@@ -107,24 +108,34 @@ class MarkChecker(object):
                         value = decorator.args[0].s
                         mark_key = decorator.func.attr
                         decorator_type = decorator.func.value.value.id
+                        if any(k in rule_conf for k in ('value_regex', 'value_match')):
+                            attempt_value_match = True
+
                         # must be marked and configured to match in order to match the content :)
-                        if all([decorator_type == 'pytest', mark_key == rule_conf['name'], rule_conf['value_match']]):
+                        if all([decorator_type == 'pytest', mark_key == rule_conf['name'], attempt_value_match]):
                             configured = True
-                            if rule_conf['value_match'] == 'uuid':
-                                try:
-                                    UUID(value)
+
+                            if 'value_regex' in rule_conf:
+                                if re.match(rule_conf['value_regex'], value):
                                     match = True
-                                # excepting Exception intentionally here
-                                # If UUID can't parse the value for any reason its not a valid uuid
-                                except Exception as e:
-                                    detailed_error = e
-                            elif re.match(rule_conf['value_match'], value):
-                                match = True
-                            else:
-                                detailed_error = "Configured regex: '{}'".format(rule_conf['value_match'])
+                                else:
+                                    detailed_error = "Configured regex: '{}'".format(rule_conf['value_regex'])
+
+                            # only use match if regex is not supplied
+                            if 'value_match' in rule_conf and 'value_regex' not in rule_conf:
+                                if rule_conf['value_match'] == 'uuid':
+                                    try:
+                                        UUID(value)
+                                        match = True
+                                    # excepting Exception intentionally here
+                                    # If UUID can't parse the value for any reason its not a valid uuid
+                                    except Exception as e:
+                                        detailed_error = e
+
+                    # this except is intended to catch errors arising from marks that are incompatible with this tool
                     except (AttributeError, IndexError, KeyError):
                         pass
                 if configured and not match:
                     code = filter(str.isdigit, str(rule_name)).zfill(2)
-                    message = "M6{} the mark value '{}' does not match the configured value_match, {}".format(code, value, detailed_error)   # noqa: E501
+                    message = "M6{} the mark value '{}' does not match the configuration specified by {}, {}".format(code, value, rule_name, detailed_error)   # noqa: E501
                     yield (line_num, 0, message, type(self))
