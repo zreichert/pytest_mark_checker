@@ -1,7 +1,7 @@
 # -*- encoding:utf-8 -*-
 
 import pytest
-from pytest_mark_checker import MarkChecker
+from flake8_pytest_mark import MarkChecker
 
 pytest_plugins = ['helpers_namespace']
 
