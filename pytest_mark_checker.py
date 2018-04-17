@@ -4,6 +4,7 @@ import ast
 import flake8
 import ast
 import re
+from uuid import UUID
 
 __author__ = 'Zach Reichert'
 __email__ = 'zach.reichert@rackspace.com'
@@ -36,7 +37,7 @@ class MarkChecker(object):
                 for single_line in mark_data:
                     a = [s.strip() for s in single_line.split('=')]
                     # whitelist the acceptable params
-                    if a[0] in ['name']:
+                    if a[0] in ['name', 'value_match']:
                         parsed_params[a[0]] = a[1]
                 d[pytest_mark] = parsed_params
         cls.pytest_marks.update(d)
@@ -48,9 +49,9 @@ class MarkChecker(object):
 
     def run(self):
         if len(self.pytest_marks) == 0:
-            message = "M401 no configuration found for {}, please provide configured marks in a flake8 config".format(self.name)
+            message = "M401 no configuration found for {}, please provide configured marks in a flake8 config".format(self.name)  # noqa: E501
             yield (0, 0, message, type(self))
-        rule_funcs = (self.rule_M5XX,)
+        rule_funcs = (self.rule_M5XX, self.rule_M6XX)
         for node in ast.walk(self.tree):
             for rule_func in rule_funcs:
                 for rule_name, configured_rule in self.pytest_marks.iteritems():
@@ -70,7 +71,7 @@ class MarkChecker(object):
         if isinstance(node, ast.FunctionDef):
             marked = False
             line_num = node.lineno
-            if re.search(r'^test_', node.name):
+            if re.match(r'^test_', node.name):
                 for decorator in node.decorator_list:
                     try:
                         value = decorator.args[0].s
@@ -83,4 +84,47 @@ class MarkChecker(object):
                 if not marked:
                     code = filter(str.isdigit, str(rule_name)).zfill(2)
                     message = 'M5{} test definition not marked with {}'.format(code, rule_conf['name'])
+                    yield (line_num, 0, message, type(self))
+
+    def rule_M6XX(self, node, rule_name, rule_conf):
+        """Validate a value to a given mark against a provided regex
+        A 6XX requires a configured 5XX rule
+        A 6XX rule will not warn if a corresponding 5XX rule validates
+
+        Args:
+            node (ast.AST): A node in the ast.
+            rule_name (str): The name of the rule.
+            rule_conf (dict): The dictionary containing the properties of the rule
+        """
+        if isinstance(node, ast.FunctionDef):
+            configured = False
+            match = False
+            detailed_error = None
+            line_num = node.lineno
+            if re.search(r'^test_', node.name):
+                for decorator in node.decorator_list:
+                    try:
+                        value = decorator.args[0].s
+                        mark_key = decorator.func.attr
+                        decorator_type = decorator.func.value.value.id
+                        # must be marked and configured to match in order to match the content :)
+                        if all([decorator_type == 'pytest', mark_key == rule_conf['name'], rule_conf['value_match']]):
+                            configured = True
+                            if rule_conf['value_match'] == 'uuid':
+                                try:
+                                    UUID(value)
+                                    match = True
+                                # excepting Exception intentionally here
+                                # If UUID can't parse the value for any reason its not a valid uuid
+                                except Exception as e:
+                                    detailed_error = e
+                            elif re.match(rule_conf['value_match'], value):
+                                match = True
+                            else:
+                                detailed_error = "Configured regex: '{}'".format(rule_conf['value_match'])
+                    except (AttributeError, IndexError, KeyError):
+                        pass
+                if configured and not match:
+                    code = filter(str.isdigit, str(rule_name)).zfill(2)
+                    message = "M6{} the mark value '{}' does not match the configured value_match, {}".format(code, value, detailed_error)   # noqa: E501
                     yield (line_num, 0, message, type(self))
