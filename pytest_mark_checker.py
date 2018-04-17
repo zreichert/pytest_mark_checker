@@ -57,9 +57,16 @@ class MarkChecker(object):
                     for err in rule_func(node, rule_name, configured_rule):
                         yield err
 
-    # a 5XX rule checks for the presence of a configured 'pytest_mark'
-    # marks may be numbered up to 50, example: 'pytest_mark49'
     def rule_M5XX(self, node, rule_name, rule_conf):
+        """Read and validate the input file contents.
+        A 5XX rule checks for the presence of a configured 'pytest_mark'
+        Marks may be numbered up to 50, example: 'pytest_mark49'
+
+        Args:
+            node (ast.AST): A node in the ast.
+            rule_name (str): The name of the rule.
+            rule_conf (dict): The dictionary containing the properties of the rule
+        """
         if isinstance(node, ast.FunctionDef):
             marked = False
             line_num = node.lineno

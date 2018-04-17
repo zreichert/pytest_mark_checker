@@ -23,7 +23,7 @@ def test_some_tests_marked(flake8dir):
 @pytest.mark.test_id('b360c12d-0d47-4cfc-9f9e-5d86c315b1e4')
 def test_1():
     pass
-    
+
 @pytest.mark.test_name('I am a test name')
 def test_2():
     pass
@@ -38,13 +38,14 @@ def test_2():
                 './example.py:5:1: M504 test definition not marked with bla_bla']
     pytest.helpers.assert_lines(expected, observed)
 
+
 def test_no_tests_marked(flake8dir):
     MarkChecker.pytest_marks = dict.fromkeys(["pytest_mark{}".format(x) for x in range(1, 50)], {})
     flake8dir.make_setup_cfg(four_marks_config)
     flake8dir.make_example_py("""
 def test_happy_path():
     pass
-    """)
+""")
     result = flake8dir.run_flake8(extra_args)
     expected = ['./example.py:1:1: M503 test definition not marked with test_name',
                 './example.py:1:1: M502 test definition not marked with foo',
