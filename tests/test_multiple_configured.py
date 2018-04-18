@@ -1,6 +1,5 @@
 # -*- encoding:utf-8 -*-
 import pytest
-from pytest_mark_checker import MarkChecker
 
 # args to only use checks that raise an 'M' prefixed error
 extra_args = ['--select', 'M']
@@ -17,7 +16,6 @@ pytest_mark4 = name=bla_bla
 
 
 def test_some_tests_marked(flake8dir):
-    MarkChecker.pytest_marks = dict.fromkeys(["pytest_mark{}".format(x) for x in range(1, 50)], {})
     flake8dir.make_setup_cfg(four_marks_config)
     flake8dir.make_example_py("""
 @pytest.mark.test_id('b360c12d-0d47-4cfc-9f9e-5d86c315b1e4')
@@ -40,7 +38,6 @@ def test_2():
 
 
 def test_no_tests_marked(flake8dir):
-    MarkChecker.pytest_marks = dict.fromkeys(["pytest_mark{}".format(x) for x in range(1, 50)], {})
     flake8dir.make_setup_cfg(four_marks_config)
     flake8dir.make_example_py("""
 def test_happy_path():

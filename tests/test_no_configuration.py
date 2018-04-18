@@ -1,5 +1,4 @@
 # -*- encoding:utf-8 -*-
-from pytest_mark_checker import MarkChecker
 import pytest
 
 # args to only use checks that raise an 'M' prefixed error
@@ -7,7 +6,6 @@ extra_args = ['--select', 'M']
 
 
 def test_no_configuration(flake8dir):
-    MarkChecker.pytest_marks = dict.fromkeys(["pytest_mark{}".format(x) for x in range(1, 50)], {})
     flake8dir.make_example_py("""
 def test_there_is_no_configuration():
     pass

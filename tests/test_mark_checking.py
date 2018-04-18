@@ -6,8 +6,7 @@ extra_args = ['--select', 'M']
 config = """
 [flake8]
 pytest_mark1 = name=test_id
-               regex=[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}
-               autofix=uuid
+
 """
 
 
