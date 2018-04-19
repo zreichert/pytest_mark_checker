@@ -1,5 +1,5 @@
 ===================
-Pytest-mark-checker
+Flake8-pytest-mark
 ===================
 
 
@@ -8,15 +8,27 @@ Check and enforce the presence of a mark on a pytest test case.
 Quick Start Guide
 -----------------
 
-1. Clone the repo locally::
+1. Install ``flake8-pytest-mark`` from PyPI with pip::
 
-    $ git clone git@github.com:zreichert/pytest-mark-checker.git
+    $ pip install flake8-pytest-mark
 
-2. Install the package into your active Python environment::
+2. Configure a mark that you would like to validate::
 
-    $ cd pytest-mark-checker/
-    $ python setup.py install
+    $ cd project_root/
+    $ vi .flake8
 
+.. code-block::ini
+    [flake8]
+    pytest_mark1 = name=test_id
+                   value_match=uuid
+3. Run flake8::
+
+    $ flake8 tests/
+
+Gotchas
+-------
+1. It is highly recommended to use this plugin inside of a virtualenv
+2. A configuration is required by this plugin, if none is found the plugin will throw a M401 validation error for every file
 
 Credits
 -------

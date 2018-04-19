@@ -13,7 +13,7 @@ def get_version(filename):
     return re.search(r"__version__ = ['\"]([^'\"]+)['\"]", contents).group(1)
 
 
-version = get_version('pytest_mark_checker.py')
+version = get_version('flake8_pytest_mark.py')
 
 with codecs.open('README.rst', 'r', 'utf-8') as readme_file:
     readme = readme_file.read()
@@ -22,19 +22,19 @@ with codecs.open('HISTORY.rst', 'r', 'utf-8') as history_file:
     history = history_file.read()
 
 setup(
-    name='pytest-mark-checker',
+    name='flake8-pytest-mark',
     version=version,
     description="A flake8 plugin that helps check the presence of a PyTest mark",
     long_description=readme + '\n\n' + history,
     author="Zach Reichert",
     author_email='zach.reichert@rackspace.com',
-    url='https://github.com/zreichert/test-mark-checker',
+    url='https://github.com/rcbops/flake8-pytest-mark',
     entry_points={
         'flake8.extension': [
-            'M = pytest_mark_checker:MarkChecker',
+            'M = flake8_pytest_mark:MarkChecker',
         ],
     },
-    py_modules=['pytest_mark_checker'],
+    py_modules=['flake8_pytest_mark'],
     include_package_data=True,
     install_requires=[
         'flake8!=3.2.0',
@@ -42,7 +42,7 @@ setup(
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     license="ISCL",
     zip_safe=False,
-    keywords='pytest-mark-checker',
+    keywords='flake8-pytest-mark',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Framework :: Flake8',

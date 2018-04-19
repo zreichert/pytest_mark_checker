@@ -15,7 +15,7 @@ class MarkChecker(object):
     """
     Flake8 plugin to check the presence of test marks.
     """
-    name = 'pytest-mark-checker'
+    name = 'flake8-pytest-mark'
     version = __version__
     pytest_marks = dict.fromkeys(["pytest_mark{}".format(x) for x in range(1, 50)], {})
 

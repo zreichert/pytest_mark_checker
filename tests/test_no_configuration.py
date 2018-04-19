@@ -11,6 +11,6 @@ def test_there_is_no_configuration():
     pass
     """)
     result = flake8dir.run_flake8(extra_args)
-    expected = ['./example.py:0:1: M401 no configuration found for pytest-mark-checker, please provide configured marks in a flake8 config']  # noqa: E501
+    expected = ['./example.py:0:1: M401 no configuration found for flake8-pytest-mark, please provide configured marks in a flake8 config']  # noqa: E501
     observed = result.out_lines
     pytest.helpers.assert_lines(expected, observed)
