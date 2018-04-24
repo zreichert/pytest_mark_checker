@@ -29,7 +29,7 @@ class MarkChecker(object):
     @classmethod
     def parse_options(cls, options):
         d = {}
-        for pytest_mark, dictionary in cls.pytest_marks.iteritems():
+        for pytest_mark, dictionary in cls.pytest_marks.items():
             # retrieve the marks from the passed options
             mark_data = getattr(options, pytest_mark)
             if len(mark_data) != 0:
@@ -54,7 +54,7 @@ class MarkChecker(object):
         rule_funcs = (self.rule_M5XX, self.rule_M6XX)
         for node in ast.walk(self.tree):
             for rule_func in rule_funcs:
-                for rule_name, configured_rule in self.pytest_marks.iteritems():
+                for rule_name, configured_rule in self.pytest_marks.items():
                     for err in rule_func(node, rule_name, configured_rule):
                         yield err
 
@@ -82,7 +82,8 @@ class MarkChecker(object):
                     except (AttributeError, IndexError, KeyError):
                         pass
                 if not marked:
-                    code = filter(str.isdigit, str(rule_name)).zfill(2)
+                    code = ''.join([i for i in str(rule_name) if i.isdigit()])
+                    code = code.zfill(2)
                     message = 'M5{} test definition not marked with {}'.format(code, rule_conf['name'])
                     yield (line_num, 0, message, type(self))
 
@@ -136,6 +137,7 @@ class MarkChecker(object):
                     except (AttributeError, IndexError, KeyError):
                         pass
                 if configured and not match:
-                    code = filter(str.isdigit, str(rule_name)).zfill(2)
+                    code = ''.join([i for i in str(rule_name) if i.isdigit()])
+                    code = code.zfill(2)
                     message = "M6{} the mark value '{}' does not match the configuration specified by {}, {}".format(code, value, rule_name, detailed_error)   # noqa: E501
                     yield (line_num, 0, message, type(self))
