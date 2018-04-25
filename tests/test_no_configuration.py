@@ -1,4 +1,4 @@
-# -*- encoding:utf-8 -*-
+# -*- coding: utf-8 -*-
 import pytest
 
 # args to only use checks that raise an 'M' prefixed error
