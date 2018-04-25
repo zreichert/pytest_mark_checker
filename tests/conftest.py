@@ -1,5 +1,4 @@
-# -*- encoding:utf-8 -*-
-
+# -*- coding: utf-8 -*-
 import pytest
 from flake8_pytest_mark import MarkChecker
 

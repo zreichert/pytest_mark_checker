@@ -1,4 +1,4 @@
-# -*- encoding:utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # args to only use checks that raise an 'M' prefixed error
 extra_args = ['--select', 'M']

@@ -1,6 +1,6 @@
-===================
+==================
 Flake8-pytest-mark
-===================
+==================
 
 
 Check and enforce the presence of a mark on a pytest test case.

@@ -3,3 +3,5 @@ flake8
 pytest-flake8dir
 pytest
 pytest-helpers-namespace
+twine
+bumpversion
