@@ -98,14 +98,14 @@ bump-patch: ## bumps the version of by patch
 uninstall: ## remove this package
 	pip uninstall flake8-pytest-mark -y || echo 'flake8-pytest-mark not installed'
 
-release-major: lint install install-dev-requirements test bump-major publish ## package and upload a major release
+release-major: install-dev-requirements bump-major lint install test publish ## package and upload a major release
 	echo 'Successfully released!'
 	echo 'Please push the newly created tag and commit to GitHub.'
 
-release-minor: lint install install-dev-requirements test bump-minor publish ## package and upload a minor release
+release-minor: install-dev-requirements bump-minor lint install test publish ## package and upload a minor release
 	echo 'Successfully released!'
 	echo 'Please push the newly created tag and commit to GitHub.'
 
-release-patch: lint install install-dev-requirements test bump-patch publish ## package and upload a patch release
+release-patch: install-dev-requirements bump-patch lint install test publish ## package and upload a patch release
 	echo 'Successfully released!'
 	echo 'Please push the newly created tag and commit to GitHub.'
