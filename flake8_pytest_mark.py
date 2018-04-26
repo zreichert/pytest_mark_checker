@@ -7,7 +7,7 @@ from uuid import UUID
 
 __author__ = 'Zach Reichert'
 __email__ = 'zach.reichert@rackspace.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 class MarkChecker(object):
