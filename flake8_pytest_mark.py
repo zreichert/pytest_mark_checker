@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import ast
-import flake8
-import ast
 import re
 from uuid import UUID
 
@@ -41,8 +39,9 @@ class MarkChecker(object):
                 d[pytest_mark] = parsed_params
         cls.pytest_marks.update(d)
         # delete any empty rules
-        cls.pytest_marks = {x:y for x,y in cls.pytest_marks.items() if len(y) > 0}
+        cls.pytest_marks = {x: y for x, y in cls.pytest_marks.items() if len(y) > 0}
 
+    # noinspection PyUnusedLocal,PyUnusedLocal
     def __init__(self, tree, *args, **kwargs):
         self.tree = tree
 
@@ -50,14 +49,14 @@ class MarkChecker(object):
         if len(self.pytest_marks) == 0:
             message = "M401 no configuration found for {}, please provide configured marks in a flake8 config".format(self.name)  # noqa: E501
             yield (0, 0, message, type(self))
-        rule_funcs = (self.rule_M5XX, self.rule_M6XX)
+        rule_funcs = (self.rule_m5xx, self.rule_m6xx)
         for node in ast.walk(self.tree):
             for rule_func in rule_funcs:
                 for rule_name, configured_rule in self.pytest_marks.items():
                     for err in rule_func(node, rule_name, configured_rule):
                         yield err
 
-    def rule_M5XX(self, node, rule_name, rule_conf):
+    def rule_m5xx(self, node, rule_name, rule_conf):
         """Read and validate the input file contents.
         A 5XX rule checks for the presence of a configured 'pytest_mark'
         Marks may be numbered up to 50, example: 'pytest_mark49'
@@ -88,7 +87,7 @@ class MarkChecker(object):
                 if not marked:
                     yield (line_num, 0, message, type(self))
 
-    def rule_M6XX(self, node, rule_name, rule_conf):
+    def rule_m6xx(self, node, rule_name, rule_conf):
         """Validate a value to a given mark against a provided regex
         A 6XX requires a configured 5XX rule
         A 6XX rule will not warn if a corresponding 5XX rule validates
