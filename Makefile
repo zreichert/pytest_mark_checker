@@ -61,7 +61,7 @@ clean-venv: uninstall check-venv ## remove all packages from current virtual env
 	@source virtualenvwrapper.sh && wipeenv || echo "Skipping wipe of environment"
 
 lint: clean install-dev-requirements ## check style with flake8
-	flake8 pytest-mark-checker tests --ignore M
+	flake8 flake8_pytest_mark.py tests --ignore M
 
 test: ## run tests quickly with the default Python
 	py.test
