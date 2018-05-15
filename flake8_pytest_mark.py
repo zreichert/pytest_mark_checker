@@ -120,9 +120,7 @@ class MarkChecker(object):
                             # iterate through values to test all for matching
                             for value in values:
                                 if 'value_regex' in rule_conf:
-                                    if re.match(rule_conf['value_regex'], value):
-                                        pass
-                                    else:
+                                    if not re.match(rule_conf['value_regex'], value):
                                         non_matching_values.append(value)
                                         detailed_error = "Configured regex: '{}'".format(rule_conf['value_regex'])
 

@@ -52,3 +52,13 @@ def test_happy_path():
     """)
     result = flake8dir.run_flake8(extra_args)
     assert result.out_lines == [u'./example.py:1:1: M501 mark values must be strings']
+
+def test_multiple_values_that_are_not_strings(flake8dir):
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+@pytest.mark.jira('ASC-432', ['ASC-123', 'ASC-124'], 'RE-234')
+def test_happy_path():
+    pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == [u'./example.py:1:1: M501 mark values must be strings']
