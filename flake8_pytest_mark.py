@@ -70,20 +70,22 @@ class MarkChecker(object):
         if isinstance(node, ast.FunctionDef):
             marked = False
             line_num = node.lineno
+            code = ''.join([i for i in str(rule_name) if i.isdigit()])
+            code = code.zfill(2)
+            message = 'M5{} test definition not marked with {}'.format(code, rule_conf['name'])
             if re.match(r'^test_', node.name):
                 for decorator in node.decorator_list:
                     try:
-                        value = decorator.args[0].s
                         mark_key = decorator.func.attr
                         decorator_type = decorator.func.value.value.id
                         if decorator_type == 'pytest' and mark_key == rule_conf['name']:
-                            marked = True
+                            if any(not isinstance(arg, ast.Str) for arg in decorator.args):
+                                message = 'M5{} mark values must be strings'.format(code)
+                            else:
+                                marked = True
                     except (AttributeError, IndexError, KeyError):
                         pass
                 if not marked:
-                    code = ''.join([i for i in str(rule_name) if i.isdigit()])
-                    code = code.zfill(2)
-                    message = 'M5{} test definition not marked with {}'.format(code, rule_conf['name'])
                     yield (line_num, 0, message, type(self))
 
     def rule_M6XX(self, node, rule_name, rule_conf):
@@ -98,14 +100,14 @@ class MarkChecker(object):
         """
         if isinstance(node, ast.FunctionDef):
             configured = False
-            match = False
+            non_matching_values = []
             detailed_error = None
             attempt_value_match = False
             line_num = node.lineno
             if re.search(r'^test_', node.name):
                 for decorator in node.decorator_list:
                     try:
-                        value = decorator.args[0].s
+                        values = [arg.s for arg in decorator.args]
                         mark_key = decorator.func.attr
                         decorator_type = decorator.func.value.value.id
                         if any(k in rule_conf for k in ('value_regex', 'value_match')):
@@ -115,28 +117,32 @@ class MarkChecker(object):
                         if all([decorator_type == 'pytest', mark_key == rule_conf['name'], attempt_value_match]):
                             configured = True
 
-                            if 'value_regex' in rule_conf:
-                                if re.match(rule_conf['value_regex'], value):
-                                    match = True
-                                else:
-                                    detailed_error = "Configured regex: '{}'".format(rule_conf['value_regex'])
+                            # iterate through values to test all for matching
+                            for value in values:
+                                if 'value_regex' in rule_conf:
+                                    if re.match(rule_conf['value_regex'], value):
+                                        pass
+                                    else:
+                                        non_matching_values.append(value)
+                                        detailed_error = "Configured regex: '{}'".format(rule_conf['value_regex'])
 
-                            # only use match if regex is not supplied
-                            if 'value_match' in rule_conf and 'value_regex' not in rule_conf:
-                                if rule_conf['value_match'] == 'uuid':
-                                    try:
-                                        UUID(value)
-                                        match = True
-                                    # excepting Exception intentionally here
-                                    # If UUID can't parse the value for any reason its not a valid uuid
-                                    except Exception as e:
-                                        detailed_error = e
+                                # only use match if regex is not supplied
+                                if 'value_match' in rule_conf and 'value_regex' not in rule_conf:
+                                    if rule_conf['value_match'] == 'uuid':
+                                        try:
+                                            UUID(value)
+                                        # excepting Exception intentionally here
+                                        # If UUID can't parse the value for any reason its not a valid uuid
+                                        except Exception as e:
+                                            non_matching_values.append(value)
+                                            detailed_error = e
 
                     # this except is intended to catch errors arising from marks that are incompatible with this tool
                     except (AttributeError, IndexError, KeyError):
                         pass
-                if configured and not match:
+
+                if configured and len(non_matching_values) > 0:
                     code = ''.join([i for i in str(rule_name) if i.isdigit()])
                     code = code.zfill(2)
-                    message = "M6{} the mark value '{}' does not match the configuration specified by {}, {}".format(code, value, rule_name, detailed_error)   # noqa: E501
+                    message = "M6{} the mark values '{}' do not match the configuration specified by {}, {}".format(code, non_matching_values, rule_name, detailed_error)   # noqa: E501
                     yield (line_num, 0, message, type(self))

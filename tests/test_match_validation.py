@@ -52,7 +52,7 @@ def test_happy_path():
     pass
     """)
     result = flake8dir.run_flake8(extra_args)
-    expected = ["./example.py:1:1: M601 the mark value 'this is a bad value' does not match the configuration specified by pytest_mark1, badly formed hexadecimal UUID string"]  # noqa: E501
+    expected = ["./example.py:1:1: M601 the mark values '['this is a bad value']' do not match the configuration specified by pytest_mark1, badly formed hexadecimal UUID string"]  # noqa: E501
     observed = result.out_lines
     pytest.helpers.assert_lines(expected, observed)
 
@@ -79,7 +79,7 @@ def test_happy_path():
     """)
     result = flake8dir.run_flake8(extra_args)
     observed = result.out_lines
-    expected = [r"./example.py:1:1: M601 the mark value 'this_should_fail' does not match the configuration specified by pytest_mark1, Configured regex: '^this_is_a_regex'"]  # noqa: E501
+    expected = [r"./example.py:1:1: M601 the mark values '['this_should_fail']' do not match the configuration specified by pytest_mark1, Configured regex: '^this_is_a_regex'"]  # noqa: E501
     pytest.helpers.assert_lines(expected, observed)
 
 
@@ -98,8 +98,8 @@ def test_i_will_fail_too():
     """)
     result = flake8dir.run_flake8(extra_args)
     observed = result.out_lines
-    expected = [r"./example.py:1:1: M601 the mark value 'this_should_fail' does not match the configuration specified by pytest_mark1, Configured regex: '^this_is_a_regex'",  # noqa: E501
-                r"./example.py:6:1: M602 the mark value 'babe2863-4284-11e8-9eca-6c96cfdf5101fail' does not match the configuration specified by pytest_mark2, badly formed hexadecimal UUID string"]  # noqa: E501
+    expected = [r"./example.py:1:1: M601 the mark values '['this_should_fail']' do not match the configuration specified by pytest_mark1, Configured regex: '^this_is_a_regex'",  # noqa: E501
+                r"./example.py:6:1: M602 the mark values '['babe2863-4284-11e8-9eca-6c96cfdf5101fail']' do not match the configuration specified by pytest_mark2, badly formed hexadecimal UUID string"]  # noqa: E501
     pytest.helpers.assert_lines(expected, observed)
 
 
@@ -112,5 +112,5 @@ def test_i_will_fail():
     """)
     result = flake8dir.run_flake8(extra_args)
     observed = result.out_lines
-    expected = [r"./example.py:1:1: M601 the mark value 'b360c12d-0d47-4cfc-9f9e-5d86c315b1e4' does not match the configuration specified by pytest_mark1, Configured regex: '^this_is_a_regex'"]  # noqa: E501
+    expected = [r"./example.py:1:1: M601 the mark values '['b360c12d-0d47-4cfc-9f9e-5d86c315b1e4']' do not match the configuration specified by pytest_mark1, Configured regex: '^this_is_a_regex'"]  # noqa: E501
     pytest.helpers.assert_lines(expected, observed)
