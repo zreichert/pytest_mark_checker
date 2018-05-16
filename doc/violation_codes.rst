@@ -13,5 +13,7 @@ flak8-pytest-mark is a flake8 plugin that validates the presence of given pytest
 +------+--------------------------------------------------------------------------------------------------+
 | M6XX | does not match the configuration specified by pytest_mark1, badly formed hexadecimal UUID string |
 +------+--------------------------------------------------------------------------------------------------+
+| M7XX | mark values must be strings                                                                      |
++------+--------------------------------------------------------------------------------------------------+
 
 The codes referenced in the table above that end in XX are configurable.  Up to 50 instances may be created.
