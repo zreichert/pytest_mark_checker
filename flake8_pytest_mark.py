@@ -65,6 +65,9 @@ class MarkChecker(object):
             node (ast.AST): A node in the ast.
             rule_name (str): The name of the rule.
             rule_conf (dict): The dictionary containing the properties of the rule
+
+        Yields:
+            tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
         """
         if isinstance(node, ast.FunctionDef):
             marked = False
@@ -93,6 +96,9 @@ class MarkChecker(object):
             node (ast.AST): A node in the ast.
             rule_name (str): The name of the rule.
             rule_conf (dict): The dictionary containing the properties of the rule
+
+        Yields:
+            tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
         """
         if isinstance(node, ast.FunctionDef):
             configured = False
@@ -149,6 +155,9 @@ class MarkChecker(object):
             node (ast.AST): A node in the ast.
             rule_name (str): The name of the rule.
             rule_conf (dict): The dictionary containing the properties of the rule
+
+        Yields:
+            tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
         """
         if isinstance(node, ast.FunctionDef):
             line_num = node.lineno
