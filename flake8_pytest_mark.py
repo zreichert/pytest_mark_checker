@@ -49,7 +49,7 @@ class MarkChecker(object):
         if len(self.pytest_marks) == 0:
             message = "M401 no configuration found for {}, please provide configured marks in a flake8 config".format(self.name)  # noqa: E501
             yield (0, 0, message, type(self))
-        rule_funcs = (self.rule_m5xx, self.rule_m6xx)
+        rule_funcs = (self.rule_m5xx, self.rule_m6xx, self.rule_m7xx)
         for node in ast.walk(self.tree):
             for rule_func in rule_funcs:
                 for rule_name, configured_rule in self.pytest_marks.items():
@@ -78,10 +78,7 @@ class MarkChecker(object):
                         mark_key = decorator.func.attr
                         decorator_type = decorator.func.value.value.id
                         if decorator_type == 'pytest' and mark_key == rule_conf['name']:
-                            if any(not isinstance(arg, ast.Str) for arg in decorator.args):
-                                message = 'M5{} mark values must be strings'.format(code)
-                            else:
-                                marked = True
+                            marked = True
                     except (AttributeError, IndexError, KeyError):
                         pass
                 if not marked:
@@ -142,4 +139,31 @@ class MarkChecker(object):
                     code = ''.join([i for i in str(rule_name) if i.isdigit()])
                     code = code.zfill(2)
                     message = "M6{} the mark values '{}' do not match the configuration specified by {}, {}".format(code, non_matching_values, rule_name, detailed_error)   # noqa: E501
+                    yield (line_num, 0, message, type(self))
+
+    def rule_m7xx(self, node, rule_name, rule_conf):
+        """Validate types of the objects passed as args to a configured mark
+        All args must be strings
+
+        Args:
+            node (ast.AST): A node in the ast.
+            rule_name (str): The name of the rule.
+            rule_conf (dict): The dictionary containing the properties of the rule
+        """
+        if isinstance(node, ast.FunctionDef):
+            line_num = node.lineno
+            code = ''.join([i for i in str(rule_name) if i.isdigit()])
+            code = code.zfill(2)
+            message = False
+            if re.match(r'^test_', node.name):
+                for decorator in node.decorator_list:
+                    try:
+                        mark_key = decorator.func.attr
+                        decorator_type = decorator.func.value.value.id
+                        if decorator_type == 'pytest' and mark_key == rule_conf['name']:
+                            if any(not isinstance(arg, ast.Str) for arg in decorator.args):
+                                message = 'M7{} mark values must be strings'.format(code)
+                    except (AttributeError, IndexError, KeyError):
+                        pass
+                if message:
                     yield (line_num, 0, message, type(self))
