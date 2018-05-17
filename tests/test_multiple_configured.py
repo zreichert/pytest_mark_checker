@@ -50,3 +50,42 @@ def test_happy_path():
                 './example.py:1:1: M501 test definition not marked with test_id']
     observed = result.out_lines
     pytest.helpers.assert_lines(expected, observed)
+
+
+def test_asc_517(flake8dir):
+    c = """
+[flake8]
+pytest_mark1 = name=test_id,value_match=uuid
+pytest_mark2 = name=jira,value_regex=[a-zA-Z]+-\d+
+
+"""
+    flake8dir.make_setup_cfg(c)
+    flake8dir.make_example_py("""
+@pytest.mark.test_id('bogus')
+@pytest.mark.jira('ASC-567')
+def test_my_feature(host):
+    pass
+""")
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == [u"./example.py:1:1: M601 the mark values '['bogus']' do not match the configuration specified by pytest_mark1, badly formed hexadecimal UUID string"]  # noqa
+
+
+def test_asc_517_both_values_bad(flake8dir):
+    c = """
+[flake8]
+pytest_mark1 = name=test_id,value_match=uuid
+pytest_mark2 = name=jira,value_regex=[a-zA-Z]+-\d+
+
+"""
+    flake8dir.make_setup_cfg(c)
+    flake8dir.make_example_py("""
+@pytest.mark.test_id('bogus')
+@pytest.mark.jira('jira-ticket')
+def test_my_feature(host):
+    pass
+""")
+    result = flake8dir.run_flake8(extra_args)
+    observed = result.out_lines
+    expected = ["./example.py:1:1: M601 the mark values '['bogus']' do not match the configuration specified by pytest_mark1, badly formed hexadecimal UUID string",
+                "./example.py:1:1: M602 the mark values '['jira-ticket']' do not match the configuration specified by pytest_mark2, Configured regex: '[a-zA-Z]+-\d+'"]  # noqa
+    pytest.helpers.assert_lines(expected, observed)
