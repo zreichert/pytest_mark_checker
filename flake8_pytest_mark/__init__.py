@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import ast
 import re
-from rules import rule_m5xx, rule_m6xx, rule_m7xx, rule_m8xx
+from flake8_pytest_mark import rules
 
 __author__ = 'Zach Reichert'
 __email__ = 'zach.reichert@rackspace.com'
@@ -14,17 +14,29 @@ class MarkChecker(object):
     """
     name = 'flake8-pytest-mark'
     version = __version__
-    pytest_marks = dict.fromkeys(["pytest_mark{}".format(x) for x in range(1, 50)], {})
+    min_mark = 1
+    max_mark = 50
+    pytest_marks = dict.fromkeys(["pytest_mark{}".format(x) for x in range(min_mark, max_mark)], {})
 
     @classmethod
     def add_options(cls, parser):
+        """Required by flake8
+        add the possible options, called first
+
+        parser (OptionsManager):
+        """
         kwargs = {'action': 'store', 'default': '', 'parse_from_config': True,
                   'comma_separated_list': True}
-        for num in range(1, 50):
+        for num in range(cls.min_mark, cls.max_mark):
             parser.add_option(None, "--pytest-mark{}".format(num), **kwargs)
 
     @classmethod
     def parse_options(cls, options):
+        """Required by flake8
+        parse the options, called after add_options
+
+        options (dict): options to be parsed
+        """
         d = {}
         for pytest_mark, dictionary in cls.pytest_marks.items():
             # retrieve the marks from the passed options
@@ -43,11 +55,24 @@ class MarkChecker(object):
 
     # noinspection PyUnusedLocal,PyUnusedLocal
     def __init__(self, tree, *args, **kwargs):
+        """Required by flake8
+
+        tree (ast.AST): an AST tree
+        args:
+        kwargs:
+        """
         self.tree = tree
 
     def run(self):
+        """Required by flake8
+        will be called after add_options and parse_options
+
+        Yields:
+            tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
+        """
         if len(self.pytest_marks) == 0:
-            message = "M401 no configuration found for {}, please provide configured marks in a flake8 config".format(self.name)  # noqa: E501
+            message = "M401 no configuration found for {}, " \
+                      "please provide configured marks in a flake8 config".format(self.name)
             yield (0, 0, message, type(self))
         rule_funcs = (rules.rule_m5xx, rules.rule_m6xx, rules.rule_m7xx, rules.rule_m8xx)
         for node in ast.walk(self.tree):
@@ -56,4 +81,3 @@ class MarkChecker(object):
                     for rule_name, configured_rule in self.pytest_marks.items():
                         for err in rule_func(node, rule_name, configured_rule, type(self)):
                             yield err
-

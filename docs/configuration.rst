@@ -50,14 +50,27 @@ All examples assume running against the following test file.
 **.flake8** : Validation Configuration, validate the presence and contents of two pytest-marks::
 
     [flake8]
-    pytest_mark1 = name=test_id
-                   value_match=uuid
-    pytest_mark2 = name=test_type
-                   value_regex=(integration)|(unit)
+    pytest_mark1 = name=test_id,
+                   value_match=uuid,
+    pytest_mark2 = name=test_type,
+                   value_regex=(integration)|(unit),
 
 **Shell Output** : Validating one mark not present & one mark value does not match::
 
     ./example.py:1:1: M501 test definition not marked with test_id
     ./example.py:6:1: M602 the mark value 'functional' does not match the configuration specified by pytest_mark2, Configured regex: '(integration)|(unit)'
+
+**.flake8** : Configuration, configure a mark that can be duplicated::
+
+    [flake8]
+    pytest_mark1 = name=test_id,
+                   allow_duplicate=true,
+
+**duplicate_example.py** : With above configuration flake8-pytest-mark will not raise a violation::
+
+    @pytest.mark.test_type('functional')
+    @pytest.mark.test_type('unit')
+    def test_multiple_marks():
+        pass
 
 .. _Flake8_configuration: http://flake8.pycqa.org/en/latest/user/configuration.html

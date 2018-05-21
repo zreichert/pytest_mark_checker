@@ -121,14 +121,23 @@ def rule_m8xx(node, rule_name, rule_conf, class_type):
     code = ''.join([i for i in str(rule_name) if i.isdigit()])
     code = code.zfill(2)
     message = 'M8{} @pytest.mark.{} may only be called once for a given test'.format(code, rule_conf['name'])
-    allow_duplicate = False
-    if 'allow_duplicate' in rule_conf and rule_conf['allow_duplicate'].lower() == 'true':
-        allow_duplicate = True
-    if not allow_duplicate and len(_reduce_decorators_by_mark(node.decorator_list, rule_conf['name'])) > 1:
+    allow_dupe = True if 'allow_duplicate' in rule_conf and rule_conf['allow_duplicate'].lower() == 'true' else False
+    if not allow_dupe and len(_reduce_decorators_by_mark(node.decorator_list, rule_conf['name'])) > 1:
         yield (line_num, 0, message, class_type)
 
 
 def _reduce_decorators_by_mark(decorators, mark):
+    """reduces a list of decorators to a list that
+    are decorators used by pytest
+    are decorators of the mark passed in
+
+    Args:
+        decorators (list): A list of decorators from AST
+        mark (str): The name of the mark.
+
+    Returns:
+        list: decorators that are 'pytest' and the passed mark
+    """
     reduced = []
     for decorator in decorators:
         try:
@@ -140,6 +149,14 @@ def _reduce_decorators_by_mark(decorators, mark):
 
 
 def _get_decorator_args(decorator):
+    """Gets the string arguments for a given decorator
+
+    Args:
+        decorator (AST.node.decorator): A decorator
+
+    Returns:
+        list: a list of args that are strings from the passed decorator
+    """
     args = []
     try:
         for arg in decorator.args:

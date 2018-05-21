@@ -2,7 +2,6 @@
 Flake8-pytest-mark
 ==================
 
-
 Check and enforce the presence of a mark on a pytest test case.
 
 Quick Start Guide
@@ -27,16 +26,19 @@ Quick Start Guide
 
 Gotchas
 -------
+
 1. It is highly recommended to use this plugin inside of a virtualenv
 2. A configuration is required by this plugin, if none is found the plugin will throw a M401 validation error for every file
 
 Violation Codes
 ---------------
+
 All possible violation codes are documented in violation_codes_
 
 
 Example Configurations
----------------
+----------------------
+
 More example configurations can be found in configuration_
 
 Credits
@@ -45,7 +47,7 @@ Credits
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 .. _CONTRIBUTING.rst: CONTRIBUTING.rst
-.. _configuration.rst: configuration.rst
-.. _violation_codes.rst: violation_codes.rst
+.. _configuration: docs/configuration.rst
+.. _violation_codes: docs/violation_codes.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
