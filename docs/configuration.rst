@@ -15,13 +15,15 @@ Configuration
 You may configure up to 50 pytest-marks to be validated.  Flake8-pytest-mark will only validate marks that accept a single string as an argument ``@pytest.mark.test_id('I_am_a_string')``.  IF you would like to match the value of a marks string you may supply one of the following parameters.
 
 
-+-------------+----------------------------------------------+----------------------------------------------------------------+
-| Param Name  + Valid Argument                               + Explanation                                                    +
-+=============+==============================================+================================================================+
-| value_match + uuid                                         + Will validate the the supplied string is a valid UUID          |
-+-------------+----------------------------------------------+----------------------------------------------------------------+
-| value_regex + any valid regex that does not contain spaces | Will validate that the supplied string is a match to the regex |
-+-------------+----------------------------------------------+----------------------------------------------------------------+
++-----------------+----------------------------------------------+----------------------------------------------------------------+
+| Param Name      + Valid Argument                               + Explanation                                                    +
++=================+==============================================+================================================================+
+| value_match     + uuid                                         + Will validate the the supplied string is a valid UUID          |
++-----------------+----------------------------------------------+----------------------------------------------------------------+
+| value_regex     + any valid regex that does not contain spaces | Will validate that the supplied string is a match to the regex |
++-----------------+----------------------------------------------+----------------------------------------------------------------+
+| allow_duplicate + false (default), true                        | Allows a mark to decorate a test more than once                |
++-----------------+----------------------------------------------+----------------------------------------------------------------+
 
 Examples:
 =========
