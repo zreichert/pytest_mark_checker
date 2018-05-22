@@ -22,7 +22,7 @@ setup(
             'M = flake8_pytest_mark:MarkChecker',
         ],
     },
-    py_modules=['flake8_pytest_mark'],
+    packages=['flake8_pytest_mark'],
     include_package_data=True,
     install_requires=[
         'flake8!=3.2.0',
