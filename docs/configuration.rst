@@ -73,4 +73,14 @@ All examples assume running against the following test file.
     def test_multiple_marks():
         pass
 
+**multiple_arg_example.py** : With above configuration flake8-pytest-mark will raise a violation by default::
+
+    @pytest.mark.test_type('functional', 'unit')
+    def test_multiple_marks():
+        pass
+
+**Shell Output** : Validating one mark not present & one mark value does not match::
+
+    ./example.py:1:1: M901 you may only specify one argument to @pytest.mark.test_type'
+
 .. _Flake8_configuration: http://flake8.pycqa.org/en/latest/user/configuration.html
