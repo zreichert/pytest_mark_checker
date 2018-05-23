@@ -15,15 +15,17 @@ Configuration
 You may configure up to 50 pytest-marks to be validated.  Flake8-pytest-mark will only validate marks that accept a single string as an argument ``@pytest.mark.test_id('I_am_a_string')``.  IF you would like to match the value of a marks string you may supply one of the following parameters.
 
 
-+-----------------+----------------------------------------------+----------------------------------------------------------------+
-| Param Name      + Valid Argument                               + Explanation                                                    +
-+=================+==============================================+================================================================+
-| value_match     + uuid                                         + Will validate the the supplied string is a valid UUID          |
-+-----------------+----------------------------------------------+----------------------------------------------------------------+
-| value_regex     + any valid regex that does not contain spaces | Will validate that the supplied string is a match to the regex |
-+-----------------+----------------------------------------------+----------------------------------------------------------------+
-| allow_duplicate + false (default), true                        | Allows a mark to decorate a test more than once                |
-+-----------------+----------------------------------------------+----------------------------------------------------------------+
++---------------------+----------------------------------------------+----------------------------------------------------------------+
+| Param Name          + Valid Argument                               + Explanation                                                    +
++=====================+==============================================+================================================================+
+| value_match         + uuid                                         + Will validate the the supplied string is a valid UUID          |
++---------------------+----------------------------------------------+----------------------------------------------------------------+
+| value_regex         + any valid regex that does not contain spaces | Will validate that the supplied string is a match to the regex |
++---------------------+----------------------------------------------+----------------------------------------------------------------+
+| allow_duplicate     + false (default), true                        | Allows a mark to decorate a test more than once                |
++---------------------+----------------------------------------------+----------------------------------------------------------------+
+| allow_multiple_args + false (default), true                        | Allows a decorator to receive multiple arguments               |
++---------------------+----------------------------------------------+----------------------------------------------------------------+
 
 Examples:
 =========
@@ -72,5 +74,21 @@ All examples assume running against the following test file.
     @pytest.mark.test_type('unit')
     def test_multiple_marks():
         pass
+
+**multiple_arg_example.py** : With above configuration flake8-pytest-mark will raise a violation by default::
+
+    @pytest.mark.test_type('functional', 'unit')
+    def test_multiple_marks():
+        pass
+
+**Shell Output** : Validating one mark not present & one mark value does not match::
+
+    ./example.py:1:1: M901 you may only specify one argument to @pytest.mark.test_type'
+
+**.flake8** : Configuration, configure a mark that allows for multiple arguments::
+
+    [flake8]
+    pytest_mark1 = name=test_id,
+                   allow_multiple_args=true
 
 .. _Flake8_configuration: http://flake8.pycqa.org/en/latest/user/configuration.html
