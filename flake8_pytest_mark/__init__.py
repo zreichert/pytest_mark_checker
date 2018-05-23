@@ -23,7 +23,8 @@ class MarkChecker(object):
         """Required by flake8
         add the possible options, called first
 
-        parser (OptionsManager):
+        Args:
+            parser (OptionsManager):
         """
         kwargs = {'action': 'store', 'default': '', 'parse_from_config': True,
                   'comma_separated_list': True}
@@ -35,7 +36,8 @@ class MarkChecker(object):
         """Required by flake8
         parse the options, called after add_options
 
-        options (dict): options to be parsed
+        Args:
+            options (dict): options to be parsed
         """
         d = {}
         for pytest_mark, dictionary in cls.pytest_marks.items():
@@ -57,9 +59,10 @@ class MarkChecker(object):
     def __init__(self, tree, *args, **kwargs):
         """Required by flake8
 
-        tree (ast.AST): an AST tree
-        args:
-        kwargs:
+        Args:
+            tree (ast.AST): an AST tree
+            args:
+            kwargs:
         """
         self.tree = tree
 

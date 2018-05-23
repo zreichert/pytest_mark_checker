@@ -10,7 +10,7 @@ pytest_mark1 = name=test_id,
 """
 
 
-def test_with_duplicate_marks(flake8dir):
+def test_with_multiple_arguments(flake8dir):
     flake8dir.make_setup_cfg(config)
     flake8dir.make_example_py("""
 @pytest.mark.test_id('too', 'many', 'args')
