@@ -2,6 +2,9 @@
 Flake8-pytest-mark
 ==================
 
+.. image:: https://img.shields.io/travis/rcbops/flake8-pytest-mark.svg
+        :target: https://travis-ci.org/rcbops/flake8-pytest-mark
+
 Check and enforce the presence of a mark on a pytest test case.
 
 Quick Start Guide
@@ -16,10 +19,12 @@ Quick Start Guide
     $ cd project_root/
     $ vi .flake8
 
-.. code-block::ini
+.. code-block:: ini
+
     [flake8]
     pytest_mark1 = name=test_id
                    value_match=uuid
+
 3. Run flake8::
 
     $ flake8 tests/
