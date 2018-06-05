@@ -2,8 +2,8 @@
 Flake8-pytest-mark
 ==================
 
-.. image:: https://img.shields.io/travis/rcbops/flake8-pytest-mark.svg
-        :target: https://travis-ci.org/rcbops/flake8-pytest-mark
+.. image:: https://travis-ci.org/rcbops/flake8-pytest-mark.svg?branch=master
+    :target: https://travis-ci.org/rcbops/flake8-pytest-mark
 
 Check and enforce the presence of a mark on a pytest test case.
 
