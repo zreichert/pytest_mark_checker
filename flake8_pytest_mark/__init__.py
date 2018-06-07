@@ -5,7 +5,7 @@ from flake8_pytest_mark import rules
 
 __author__ = 'Zach Reichert'
 __email__ = 'zach.reichert@rackspace.com'
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 
 class MarkChecker(object):
