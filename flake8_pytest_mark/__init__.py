@@ -3,8 +3,8 @@ import ast
 import re
 from flake8_pytest_mark import rules
 
-__author__ = 'Zach Reichert'
-__email__ = 'zach.reichert@rackspace.com'
+__author__ = 'rpc-automation'
+__email__ = 'rpc-automation@rackspace.com'
 __version__ = '0.4.0'
 
 
