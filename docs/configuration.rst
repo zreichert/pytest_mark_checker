@@ -109,7 +109,7 @@ All examples assume running against the following test file.
     def test_unique_mark2():
         pass
 
-**Shell Output** : Validating that "test_id" mark value is not unique::
+**Shell Output** : Violation triggered because the value for "test_id" mark is not unique across all mark occurrences::
 
     ./example.py:5:1: M301 @pytest.mark.test value is not unique! The 'unique_test_id' mark value already specified for the 'test_unique_mark1' test at line '1' found in the './example.py' file!
 

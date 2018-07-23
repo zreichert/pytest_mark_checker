@@ -16,7 +16,9 @@ extra_args = ['--select', 'M']
 # Tests
 # ======================================================================================================================
 def test_duplicate_value_in_same_file(flake8dir, mocker):
-    """Verify that repeated unique values in the same file are detected correctly."""
+    """Verify that rule3xx violations are reported when the same value is repeated for marks declared to be unqiue
+    within a single file.
+    """
 
     # Setup
     flake8dir.make_setup_cfg("""
@@ -48,7 +50,9 @@ def test_duplicate_value_in_same_file(flake8dir, mocker):
 
 
 def test_duplicate_value_in_same_mark(flake8dir, mocker):
-    """Verify that repeated unique values in the pytest mark are detected correctly."""
+    """Verify that rule3xx violations are reported when the same value is repeated for marks declared to be unqiue
+    within a multi-argument mark.
+    """
 
     # Setup
     flake8dir.make_setup_cfg("""
@@ -77,7 +81,9 @@ def test_duplicate_value_in_same_mark(flake8dir, mocker):
 
 # noinspection PyUnresolvedReferences
 def test_duplicate_value_in_different_files(flake8dir, mocker):
-    """Verify that repeated unique values across multiple files is detected correctly."""
+    """Verify that rule3xx violations are reported when the same value is repeated for marks declared to be unqiue
+    across different files.
+    """
 
     # Setup
     flake8dir.make_setup_cfg("""
@@ -120,7 +126,9 @@ def test_duplicate_value_in_different_files(flake8dir, mocker):
 
 # noinspection PyUnresolvedReferences
 def test_duplicate_values_for_multiple_rules(flake8dir, mocker):
-    """Verify that repeated unique values for different rules across different files is detected correctly."""
+    """Verify that rule3xx violations are reported when the same value is repeated for marks declared to be unqiue
+    across different files with multiple rules.
+    """
 
     # Setup
     flake8dir.make_setup_cfg("""
