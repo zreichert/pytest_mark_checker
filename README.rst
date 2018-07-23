@@ -46,12 +46,24 @@ Example Configurations
 
 More example configurations can be found in configuration_
 
+Contributing
+------------
+
+See `CONTRIBUTING.rst`_  and `developer_docs.rst`_ for more details on developing for the Zigzag project.
+
+Release Process
+---------------
+
+See `release_process.rst`_ for information on the release process for 'zigzag'
+
 Credits
 -------
 
 This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
 
 .. _CONTRIBUTING.rst: CONTRIBUTING.rst
+.. _developer_docs.rst: docs/developer_docs.rst
+.. _release_process.rst: docs/release_process.rst
 .. _configuration: docs/configuration.rst
 .. _violation_codes: docs/violation_codes.rst
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter

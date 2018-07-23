@@ -7,11 +7,13 @@ flak8-pytest-mark is a flake8 plugin that validates the presence of given pytest
 +---------------------------------------------------------------------------------------------------------+
 | Code | Example Message                                                                                  |
 +======+==================================================================================================+
+| M3XX + collision detected for non-unique mark values when mark configured to have unique values         |
++------+--------------------------------------------------------------------------------------------------+
 | M401 + no configuration found ... please provide configured marks in a flake8 config                    |
 +------+--------------------------------------------------------------------------------------------------+
-| M5XX | test definition not marked with test_id                                                          |
+| M5XX | test definition not marked with <mark_name>                                                      |
 +------+--------------------------------------------------------------------------------------------------+
-| M6XX | does not match the configuration specified by pytest_mark1, badly formed hexadecimal UUID string |
+| M6XX | does not match the configuration specified by <mark_name>, badly formed hexadecimal UUID string  |
 +------+--------------------------------------------------------------------------------------------------+
 | M7XX | mark values must be strings                                                                      |
 +------+--------------------------------------------------------------------------------------------------+

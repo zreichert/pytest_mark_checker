@@ -3,8 +3,8 @@ import ast
 import re
 from flake8_pytest_mark import rules
 
-__author__ = 'Zach Reichert'
-__email__ = 'zach.reichert@rackspace.com'
+__author__ = 'rpc-automation'
+__email__ = 'rpc-automation@rackspace.com'
 __version__ = '0.4.0'
 
 
@@ -39,7 +39,11 @@ class MarkChecker(object):
         Args:
             options (dict): options to be parsed
         """
+
         d = {}
+        acceptable_params = \
+            ['name', 'value_match', 'value_regex', 'allow_duplicate', 'allow_multiple_args', 'enforce_unique_value']
+
         for pytest_mark, dictionary in cls.pytest_marks.items():
             # retrieve the marks from the passed options
             mark_data = getattr(options, pytest_mark)
@@ -48,23 +52,28 @@ class MarkChecker(object):
                 for single_line in mark_data:
                     a = [s.strip() for s in single_line.split('=')]
                     # whitelist the acceptable params
-                    if a[0] in ['name', 'value_match', 'value_regex', 'allow_duplicate', 'allow_multiple_args']:
+                    if a[0] in acceptable_params:
                         parsed_params[a[0]] = a[1]
                 d[pytest_mark] = parsed_params
+
         cls.pytest_marks.update(d)
+
         # delete any empty rules
         cls.pytest_marks = {x: y for x, y in cls.pytest_marks.items() if len(y) > 0}
 
     # noinspection PyUnusedLocal,PyUnusedLocal
-    def __init__(self, tree, *args, **kwargs):
+    def __init__(self, tree, filename, *args, **kwargs):
         """Required by flake8
 
         Args:
-            tree (ast.AST): an AST tree
-            args:
-            kwargs:
+            tree (ast.AST): An AST tree. (Required by flake8, but never used by this plug-in)
+            filename (str): The name of the file to evaluate.
+            args (list): A list of positional arguments.
+            kwargs (dict): A dictionary of keyword arguments.
         """
+
         self.tree = tree
+        self.filename = filename
 
     def run(self):
         """Required by flake8
@@ -73,14 +82,22 @@ class MarkChecker(object):
         Yields:
             tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
         """
+
+        rule_funcs = \
+            (rules.rule_m3xx, rules.rule_m5xx, rules.rule_m6xx, rules.rule_m7xx, rules.rule_m8xx, rules.rule_m9xx)
+
         if len(self.pytest_marks) == 0:
             message = "M401 no configuration found for {}, " \
                       "please provide configured marks in a flake8 config".format(self.name)
             yield (0, 0, message, type(self))
-        rule_funcs = (rules.rule_m5xx, rules.rule_m6xx, rules.rule_m7xx, rules.rule_m8xx, rules.rule_m9xx)
+
         for node in ast.walk(self.tree):
             if isinstance(node, ast.FunctionDef) and re.match(r'^test_', node.name):
                 for rule_func in rule_funcs:
                     for rule_name, configured_rule in self.pytest_marks.items():
-                        for err in rule_func(node, rule_name, configured_rule, type(self)):
+                        for err in rule_func(node=node,
+                                             rule_name=rule_name,
+                                             rule_conf=configured_rule,
+                                             class_type=type(self),
+                                             filename=self.filename):
                             yield err

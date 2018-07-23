@@ -72,13 +72,17 @@ test-all: ## run tests on every Python version with tox
 install: clean build uninstall ## install the package to the active Python's site-packages
 	pip install dist/*.whl
 
+install-venv: clean-venv install ## setup a user environment after wiping the virtual environment
+
 install-editable: ## install the package in editable mode
 	if pip list -e | grep 'flake8-pytest-mark'; then echo 'Editable package already installed'; else pip install -e .; fi
 
-install-dev-requirements: ## install the requirements for development
-	pip install -r requirements_dev.txt
+install-requirements: ## install the requirements for development
+	pip install -r requirements.txt
 
-develop: clean install-dev-requirements install-editable ## install necessary packages to setup a dev environment
+develop: clean install-requirements install-editable ## install necessary packages to setup a dev environment
+
+develop-venv: clean-venv develop ## setup a dev environment after wiping the virtual environment
 
 build: ## build a wheel
 	python setup.py bdist_wheel
@@ -98,14 +102,14 @@ bump-patch: ## bumps the version of by patch
 uninstall: ## remove this package
 	pip uninstall flake8-pytest-mark -y || echo 'flake8-pytest-mark not installed'
 
-release-major: install-dev-requirements bump-major lint install test publish ## package and upload a major release
+release-major: install-requirements bump-major lint install test publish ## package and upload a major release
 	echo 'Successfully released!'
 	echo 'Please push the newly created tag and commit to GitHub.'
 
-release-minor: install-dev-requirements bump-minor lint install test publish ## package and upload a minor release
+release-minor: install-requirements bump-minor lint install test publish ## package and upload a minor release
 	echo 'Successfully released!'
 	echo 'Please push the newly created tag and commit to GitHub.'
 
-release-patch: install-dev-requirements bump-patch lint install test publish ## package and upload a patch release
+release-patch: install-requirements bump-patch lint install test publish ## package and upload a patch release
 	echo 'Successfully released!'
 	echo 'Please push the newly created tag and commit to GitHub.'

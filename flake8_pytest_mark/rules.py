@@ -1,11 +1,68 @@
 # -*- coding: utf-8 -*-
 
+# ======================================================================================================================
+# Imports
+# ======================================================================================================================
 import ast
 import re
 from uuid import UUID
+from collections import namedtuple
+
+# ======================================================================================================================
+# Globals
+# ======================================================================================================================
+_ValueInfo = namedtuple('_ValueInfo', ['node', 'file_path'])
+_unique_value_collision_map = {}     # { str('rule_name'): { str('value': _ValueInfo } }
 
 
-def rule_m5xx(node, rule_name, rule_conf, class_type):
+# ======================================================================================================================
+# Rules
+# ======================================================================================================================
+# noinspection PyUnusedLocal
+def rule_m3xx(node, rule_name, rule_conf, class_type, filename, **kwargs):
+    """Validate that pytest mark rules configured with 'enforce_unique_value' option will allow only unique values
+    for the mark across all files being processed during a single flake8 run.
+
+    Args:
+        node (ast.AST): A node in the ast.
+        rule_name (str): The name of the rule.
+        rule_conf (dict): The dictionary containing the properties of the rule.
+        class_type (class): The class that this rule was called from.
+        filename (str): The name of the file to evaluate.
+        kwargs (dict): A dictionary of keyword arguments.
+
+    Yields:
+        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation.
+    """
+
+    error_msg = ''
+    line_num = node.lineno
+    enforce = True if 'enforce_unique_value' in rule_conf and rule_conf['enforce_unique_value'].lower() == 'true' \
+        else False
+
+    if enforce:
+        for decorator in _reduce_decorators_by_mark(node.decorator_list, rule_conf['name']):
+            values = _get_decorator_args(decorator)
+            for value in values:
+                if rule_name not in _unique_value_collision_map:
+                    _unique_value_collision_map[rule_name] = {value: _ValueInfo(node, filename)}
+                elif value in _unique_value_collision_map[rule_name]:
+                    error_msg += ("The '{}' mark value already specified for the '{}' test at line '{}' found in the "
+                                  "'{}' file! ".format(value,
+                                                       _unique_value_collision_map[rule_name][value].node.name,
+                                                       _unique_value_collision_map[rule_name][value].node.lineno,
+                                                       _unique_value_collision_map[rule_name][value].file_path))
+                else:
+                    _unique_value_collision_map[rule_name][value] = _ValueInfo(node, filename)
+
+    if error_msg:
+        code = _generate_mark_code(rule_name)
+        message = "M3{} @pytest.mark.{} value is not unique! {}".format(code, rule_conf['name'], error_msg.rstrip())
+        yield (line_num, 0, message, class_type)
+
+
+# noinspection PyUnusedLocal
+def rule_m5xx(node, rule_name, rule_conf, class_type, **kwargs):
     """Read and validate the input file contents.
     A 5XX rule checks for the presence of a configured 'pytest_mark'
     Marks may be numbered up to 50, example: 'pytest_mark49'
@@ -13,11 +70,12 @@ def rule_m5xx(node, rule_name, rule_conf, class_type):
     Args:
         node (ast.AST): A node in the ast.
         rule_name (str): The name of the rule.
-        rule_conf (dict): The dictionary containing the properties of the rule
-        class_type (class): The class that this rule was called from
+        rule_conf (dict): The dictionary containing the properties of the rule.
+        class_type (class): The class that this rule was called from.
+        kwargs (dict): A dictionary of keyword arguments.
 
     Yields:
-        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
+        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation.
     """
     line_num = node.lineno
     code = _generate_mark_code(rule_name)
@@ -26,7 +84,8 @@ def rule_m5xx(node, rule_name, rule_conf, class_type):
         yield (line_num, 0, message, class_type)
 
 
-def rule_m6xx(node, rule_name, rule_conf, class_type):
+# noinspection PyUnusedLocal
+def rule_m6xx(node, rule_name, rule_conf, class_type, **kwargs):
     """Validate a value to a given mark against a provided regex
     A 6XX requires a configured 5XX rule
     A 6XX rule will not warn if a corresponding 5XX rule validates
@@ -34,25 +93,22 @@ def rule_m6xx(node, rule_name, rule_conf, class_type):
     Args:
         node (ast.AST): A node in the ast.
         rule_name (str): The name of the rule.
-        rule_conf (dict): The dictionary containing the properties of the rule
-        class_type (class): The class that this rule was called from
+        rule_conf (dict): The dictionary containing the properties of the rule.
+        class_type (class): The class that this rule was called from.
+        kwargs (dict): A dictionary of keyword arguments.
 
     Yields:
-        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
+        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation.
     """
-    configured = False
+
     non_matching_values = []
     detailed_error = None
-    attempt_value_match = False
     line_num = node.lineno
+
     for decorator in _reduce_decorators_by_mark(node.decorator_list, rule_conf['name']):
         values = _get_decorator_args(decorator)
+
         if any(k in rule_conf for k in ('value_regex', 'value_match')):
-            attempt_value_match = True
-
-        if attempt_value_match:
-            configured = True
-
             # iterate through values to test all for matching
             for value in values:
                 if 'value_regex' in rule_conf:
@@ -71,25 +127,30 @@ def rule_m6xx(node, rule_name, rule_conf, class_type):
                             non_matching_values.append(value)
                             detailed_error = e
 
-    if configured and len(non_matching_values) > 0:
+    if non_matching_values:
         code = _generate_mark_code(rule_name)
-        message = "M6{} the mark values '{}' do not match the configuration specified by {}, {}".format(code, non_matching_values, rule_name, detailed_error)   # noqa: E501
+        message = ("M6{} the mark values '{}' "
+                   "do not match the configuration "
+                   "specified by {}, {}".format(code, non_matching_values, rule_name, detailed_error))
         yield (line_num, 0, message, class_type)
 
 
-def rule_m7xx(node, rule_name, rule_conf, class_type):
+# noinspection PyUnusedLocal
+def rule_m7xx(node, rule_name, rule_conf, class_type, **kwargs):
     """Validate types of the objects passed as args to a configured mark
     All args must be strings
 
     Args:
         node (ast.AST): A node in the ast.
         rule_name (str): The name of the rule.
-        rule_conf (dict): The dictionary containing the properties of the rule
-        class_type (class): The class that this rule was called from
+        rule_conf (dict): The dictionary containing the properties of the rule.
+        class_type (class): The class that this rule was called from.
+        kwargs (dict): A dictionary of keyword arguments.
 
     Yields:
-        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
+        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation.
     """
+
     line_num = node.lineno
     code = _generate_mark_code(rule_name)
     message = False
@@ -100,18 +161,20 @@ def rule_m7xx(node, rule_name, rule_conf, class_type):
         yield (line_num, 0, message, class_type)
 
 
-def rule_m8xx(node, rule_name, rule_conf, class_type):
+# noinspection PyUnusedLocal
+def rule_m8xx(node, rule_name, rule_conf, class_type, **kwargs):
     """Validates that @pytest.mark.foo() is only called once for a given test
     On by default, can be turned off with allow_duplicate=true
 
     Args:
         node (ast.AST): A node in the ast.
         rule_name (str): The name of the rule.
-        rule_conf (dict): The dictionary containing the properties of the rule
-        class_type (class): The class that this rule was called from
+        rule_conf (dict): The dictionary containing the properties of the rule.
+        class_type (class): The class that this rule was called from.
+        kwargs (dict): A dictionary of keyword arguments.
 
     Yields:
-        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
+        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation.
     """
 
     line_num = node.lineno
@@ -122,7 +185,8 @@ def rule_m8xx(node, rule_name, rule_conf, class_type):
         yield (line_num, 0, message, class_type)
 
 
-def rule_m9xx(node, rule_name, rule_conf, class_type):
+# noinspection PyUnusedLocal
+def rule_m9xx(node, rule_name, rule_conf, class_type, **kwargs):
     """Validates the number of arguments to @pytest.mark.foo()
     By default we validate that there is only one argument
     can configure to allow multiple with allow_multiple_args=true
@@ -130,12 +194,14 @@ def rule_m9xx(node, rule_name, rule_conf, class_type):
     Args:
         node (ast.AST): A node in the ast.
         rule_name (str): The name of the rule.
-        rule_conf (dict): The dictionary containing the properties of the rule
-        class_type (class): The class that this rule was called from
+        rule_conf (dict): The dictionary containing the properties of the rule.
+        class_type (class): The class that this rule was called from.
+        kwargs (dict): A dictionary of keyword arguments.
 
     Yields:
-        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation
+        tuple: (int, int, str, type) the tuple used by flake8 to construct a violation.
     """
+
     line_num = node.lineno
     code = _generate_mark_code(rule_name)
     allow_multiple_args = False
@@ -147,6 +213,9 @@ def rule_m9xx(node, rule_name, rule_conf, class_type):
             yield (line_num, 0, message, class_type)
 
 
+# ======================================================================================================================
+# Private Functions
+# ======================================================================================================================
 def _reduce_decorators_by_mark(decorators, mark):
     """reduces a list of decorators to a list that
     are decorators used by pytest
