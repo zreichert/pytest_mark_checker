@@ -75,6 +75,7 @@ def test_duplicate_value_in_same_mark(flake8dir, mocker):
     pytest.helpers.assert_lines(exp_out_lines, result.out_lines)
 
 
+# noinspection PyUnresolvedReferences
 def test_duplicate_value_in_different_files(flake8dir, mocker):
     """Verify that repeated unique values across multiple files is detected correctly."""
 
@@ -102,13 +103,22 @@ def test_duplicate_value_in_different_files(flake8dir, mocker):
     exp_out_lines = ["./example2.py:1:1: M301 @pytest.mark.test value is not unique! "
                      "The 'Unique!' mark value already specified for the 'test_unique' test at line '1' "
                      "found in the './example1.py' file!"]
+    exp_out_lines_reverse = ["./example1.py:1:1: M301 @pytest.mark.test value is not unique! "
+                             "The 'Unique!' mark value already specified for the 'test_not_so_unique' test at line '1' "
+                             "found in the './example2.py' file!"]
 
     # Test
     result = flake8dir.run_flake8(extra_args)
-    # noinspection PyUnresolvedReferences
-    pytest.helpers.assert_lines(exp_out_lines, result.out_lines)
+
+    # Given that certain Linux distros will have Python walk directories in non-deterministic fashion the failure
+    # might happen in reverse order.
+    try:
+        pytest.helpers.assert_lines(exp_out_lines, result.out_lines)
+    except AssertionError:
+        pytest.helpers.assert_lines(exp_out_lines_reverse, result.out_lines)
 
 
+# noinspection PyUnresolvedReferences
 def test_duplicate_values_for_multiple_rules(flake8dir, mocker):
     """Verify that repeated unique values for different rules across different files is detected correctly."""
 
@@ -121,11 +131,11 @@ def test_duplicate_values_for_multiple_rules(flake8dir, mocker):
     flake8dir.make_py_files(
         example1="""
             @pytest.mark.test1('Unique!')
-            @pytest.mark.test2('Also unique!')
+            @pytest.mark.test2('Also quite unique!')
             def test_unique1():
                 pass
             @pytest.mark.test1('Very Unique!')
-            @pytest.mark.test2('Also quite unique!')
+            @pytest.mark.test2('Also unique!')
             def test_unique2():
                 pass
         """,
@@ -148,13 +158,24 @@ def test_duplicate_values_for_multiple_rules(flake8dir, mocker):
                      "The 'Unique!' mark value already specified for the 'test_unique1' test at line '1' "
                      "found in the './example1.py' file!",
                      "./example2.py:5:1: M302 @pytest.mark.test2 value is not unique! "
-                     "The 'Also unique!' mark value already specified for the 'test_unique1' test at line '1' "
+                     "The 'Also unique!' mark value already specified for the 'test_unique2' test at line '5' "
                      "found in the './example1.py' file!"]
+    exp_out_lines_reverse = ["./example1.py:1:1: M301 @pytest.mark.test1 value is not unique! "
+                             "The 'Unique!' mark value already specified for the 'test_unique3' test at line '1' "
+                             "found in the './example2.py' file!",
+                             "./example1.py:5:1: M302 @pytest.mark.test2 value is not unique! "
+                             "The 'Also unique!' mark value already specified for the 'test_unique4' test at line '5' "
+                             "found in the './example2.py' file!"]
 
     # Test
     result = flake8dir.run_flake8(extra_args)
-    # noinspection PyUnresolvedReferences
-    pytest.helpers.assert_lines(exp_out_lines, result.out_lines)
+
+    # Given that certain Linux distros will have Python walk directories in non-deterministic fashion the failure
+    # might happen in reverse order.
+    try:
+        pytest.helpers.assert_lines(exp_out_lines, result.out_lines)
+    except AssertionError:
+        pytest.helpers.assert_lines(exp_out_lines_reverse, result.out_lines)
 
 
 def test_all_unique_values(flake8dir, mocker):
