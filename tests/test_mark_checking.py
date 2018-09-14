@@ -41,6 +41,86 @@ def not_a_test():
     assert result.out_lines == []
 
 
+def test_class_with_test_id_mark(flake8dir):
+    """Verify that a properly marked class does not trigger a violation."""
+
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+@pytest.mark.test_id('b360c12d-0d47-4cfc-9f9e-5d86c315b1e4')
+class TestHappyPath(object):
+    pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == []
+
+
+def test_class_without_test_id_mark(flake8dir):
+    """Verify that a class missing a required mark will trigger a violation."""
+
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+class TestSadPath(object):
+    pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == ['./example.py:1:1: M501 test definition not marked with test_id']
+
+
+def test_classes_that_are_not_tests(flake8dir):
+    """Verify that a classes that do not follow the pytest test definition pattern are ignored."""
+
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+class NotATest(object):
+    pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == []
+
+
+def test_methods_with_test_id_mark(flake8dir):
+    """Verify that a properly marked method does not trigger a violation."""
+
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+@pytest.mark.test_id('b360c12d-0d47-4cfc-9f9e-5d86c315b1e4')
+class TestClass(object):
+    @pytest.mark.test_id('b360c12d-0d47-4cfc-9f9e-5d86c315b1e4')
+    def test_happy_path(self):
+        pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == []
+
+
+def test_method_without_test_id_mark(flake8dir):
+    """Verify that a method missing a required mark will trigger a violation."""
+
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+@pytest.mark.test_id('b360c12d-0d47-4cfc-9f9e-5d86c315b1e4')
+class TestClass(object):
+    def test_sad_path(self):
+        pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == ['./example.py:3:1: M501 test definition not marked with test_id']
+
+
+def test_methods_that_are_not_tests(flake8dir):
+    """Verify that a methods that do not follow the pytest test definition pattern are ignored."""
+
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+@pytest.mark.test_id('b360c12d-0d47-4cfc-9f9e-5d86c315b1e4')
+class TestClass(object):
+    def not_a_test(self):
+        pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == []
+
+
 def test_different_mark(flake8dir):
     flake8dir.make_setup_cfg(config)
     flake8dir.make_example_py("""

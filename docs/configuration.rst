@@ -15,19 +15,25 @@ Configuration
 You may configure up to 50 pytest-marks to be validated.  Flake8-pytest-mark will only validate marks that accept a single string as an argument ``@pytest.mark.test_id('I_am_a_string')``.  IF you would like to match the value of a marks string you may supply one of the following parameters.
 
 
-+----------------------+----------------------------------------------+----------------------------------------------------------------+
-| Param Name           + Valid Argument                               + Explanation                                                    +
-+======================+==============================================+================================================================+
-| value_match          + uuid                                         + Will validate the the supplied string is a valid UUID          |
-+----------------------+----------------------------------------------+----------------------------------------------------------------+
-| value_regex          + any valid regex that does not contain spaces | Will validate that the supplied string is a match to the regex |
-+----------------------+----------------------------------------------+----------------------------------------------------------------+
-| allow_duplicate      + false (default), true                        | Allows a mark to decorate a test more than once                |
-+----------------------+----------------------------------------------+----------------------------------------------------------------+
-| allow_multiple_args  + false (default), true                        | Allows a decorator to receive multiple arguments               |
-+----------------------+----------------------------------------------+----------------------------------------------------------------+
-| enforce_unique_value + false (default), true                        | Enforces that mark value must be unique across all occurrences |
-+----------------------+----------------------------------------------+----------------------------------------------------------------+
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
+| Param Name           + Valid Argument                               + Explanation                                                       +
++======================+==============================================+===================================================================+
+| value_match          + uuid                                         + Will validate the the supplied string is a valid UUID             |
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
+| value_regex          + any valid regex that does not contain spaces | Will validate that the supplied string is a match to the regex    |
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
+| allow_duplicate      + false (default), true                        | Allows a mark to decorate a test more than once                   |
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
+| allow_multiple_args  + false (default), true                        | Allows a decorator to receive multiple arguments                  |
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
+| enforce_unique_value + false (default), true                        | Enforces that mark value must be unique across all occurrences    |
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
+| exclude_classes      + false (default), true                        | Exclude test classes from rule processing                         |
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
+| exclude_methods      + false (default), true                        | Exclude test methods from rule processing                         |
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
+| exclude_functions    + false (default), true                        | Exclude test functions from rule processing                       |
++----------------------+----------------------------------------------+-------------------------------------------------------------------+
 
 Examples:
 =========
@@ -97,7 +103,7 @@ All examples assume running against the following test file.
 
     [flake8]
     pytest_mark1 = name=test_id,
-                   enforce_unique_value=true,
+                   enforce_unique_value=true
 
 **unique_example.py** : With above configuration flake8-pytest-mark will raise an M3XX violation::
 
@@ -112,5 +118,21 @@ All examples assume running against the following test file.
 **Shell Output** : Violation triggered because the value for "test_id" mark is not unique across all mark occurrences::
 
     ./example.py:5:1: M301 @pytest.mark.test value is not unique! The 'unique_test_id' mark value already specified for the 'test_unique_mark1' test at line '1' found in the './example.py' file!
+
+**.flake8** : Configuration, configure a mark to exclude classes from rule processing::
+
+    [flake8]
+    pytest_mark1 = name=test,
+                   exclude_classes=true
+
+**exclude_class_example.py** : With above configuration flake8-pytest-mark will raise an M5XX violation against the test method but not the class::
+
+    def TestClassMark(object):
+        def test_method(self):
+            pass
+
+**Shell Output** : Violation triggered because the value for "test" mark is not present on the method while the class is ignored::
+
+    ./example.py:2:1: M501 test definition not marked with test
 
 .. _Flake8_configuration: http://flake8.pycqa.org/en/latest/user/configuration.html
