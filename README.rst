@@ -5,7 +5,7 @@ Flake8-pytest-mark
 .. image:: https://travis-ci.org/rcbops/flake8-pytest-mark.svg?branch=master
     :target: https://travis-ci.org/rcbops/flake8-pytest-mark
 
-Check and enforce the presence of a mark on a pytest test case.
+Check and enforce the presence of a mark on a pytest test definition classes, methods and functions.
 
 Quick Start Guide
 -----------------
@@ -32,8 +32,9 @@ Quick Start Guide
 Gotchas
 -------
 
-1. It is highly recommended to use this plugin inside of a virtualenv
-2. A configuration is required by this plugin, if none is found the plugin will throw a M401 validation error for every file
+1. It is highly recommended to use this plugin inside of a virtualenv.
+2. A configuration is required by this plugin, if none is found the plugin will throw a M401 validation error for every file.
+3. By default this plug-in will enforce marks against pytest test classes. (See configuration_ for more details on how to exclude different pytest test definitions from mark checking.)
 
 Violation Codes
 ---------------

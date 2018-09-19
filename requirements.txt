@@ -1,9 +1,10 @@
 -c constraints.txt
-tox
+bumpversion
 flake8
+ipython
 pytest
-pytest-mock
 pytest-flake8dir
 pytest-helpers-namespace
+pytest-mock
+tox
 twine
-bumpversion
