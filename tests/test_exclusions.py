@@ -259,6 +259,38 @@ pytest_mark1 = name=test,
         result = flake8dir.run_flake8(extra_args)
         assert ['./example.py:5:1: M501 test definition not marked with test'] == result.out_lines
 
+    def test_classes_and_methods_excluded_functions_take_args(self, flake8dir):
+        """Verify that two test function definition violations are triggered when 'exclude_classes' and
+        'exclude_methods' are configured and all test definitions are missing required marks.
+        One function has two args and one takes no args.  
+        """
+
+        # Setup
+        flake8dir.make_setup_cfg("""
+[flake8]
+pytest_mark1 = name=test,
+               exclude_classes=true,
+               exclude_methods=true,
+               exclude_functions=false
+
+""")
+        flake8dir.make_example_py("""
+class TestClass(object):
+    def test_method(self):
+        pass
+
+def test_function_with_args(fixture_one, fixture_two):
+    pass
+    
+def test_function_without_args():
+    pass
+""")
+
+        # Test
+        result = flake8dir.run_flake8(extra_args)
+        assert ['./example.py:5:1: M501 test definition not marked with test',
+                './example.py:8:1: M501 test definition not marked with test'] == result.out_lines
+
     def test_classes_and_functions_excluded(self, flake8dir):
         """Verify that only test function definition violations are triggered when 'exclude_classes' and
         'exclude_functions' are configured and all test definitions are missing required marks.
