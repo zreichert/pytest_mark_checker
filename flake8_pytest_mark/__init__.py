@@ -137,26 +137,76 @@ class MarkChecker(object):
             bool: True if node should be processed by rules otherwise False.
         """
 
-        process_rule_flag = True
-
-        if type(node) == ast.FunctionDef:
-            # Determine if test function definition meets the criteria of being a class method.
-            if len(node.args.args) > 0:
-                # Compatibility check between Python 2.7 and Python 3.x.
-                if getattr(node.args.args[0], 'id', '') == 'self' or getattr(node.args.args[0], 'arg', '') == 'self':
-                    # Skip processing test method node if 'exclude_methods' is 'true'
-                    if 'exclude_methods' in rule_conf and rule_conf['exclude_methods'].lower() == 'true':
-                        process_rule_flag = False
-
-            # Skip processing node if a test function definition and 'exclude_functions' is 'true'
-            elif 'exclude_functions' in rule_conf \
-                    and rule_conf['exclude_functions'].lower() == 'true':
-                process_rule_flag = False
-
-        # Skip processing node if a test class definition and 'exclude_classes' is 'true'
-        elif type(node) == ast.ClassDef \
-                and 'exclude_classes' in rule_conf \
-                and rule_conf['exclude_classes'].lower() == 'true':
-            process_rule_flag = False
-
+        process_conditions = [  # process if any of these are true
+            cls._is_class_def(node) and not cls._get_value_default_to_false('exclude_classes', rule_conf),
+            cls._is_function_def(node) and not cls._get_value_default_to_false('exclude_functions', rule_conf),
+            cls._is_method_def(node) and not cls._get_value_default_to_false('exclude_methods', rule_conf)
+        ]
+        process_rule_flag = True if any(process_conditions) else False
         return process_rule_flag
+
+    @classmethod
+    def _is_function_def(cls, node):
+        """Test if a node is a function definition
+
+        Args:
+            node (ast.stmt): The node under evaluation.
+
+        Returns:
+            bool: True if node is a function definition
+        """
+        r = True if type(node) == ast.FunctionDef and not cls._is_method_def(node) else False
+        return r
+
+    @classmethod
+    def _is_method_def(cls, node):
+        """Test if a node is a method definition
+
+        Args:
+            node (ast.stmt): The node under evaluation.
+
+        Returns:
+            bool: True if node is a method definition
+        """
+        if type(node) == ast.FunctionDef:
+            if len(node.args.args) == 0:  # must have more than 0 args to be a method
+                return False
+            class_first_position_arguments = [getattr(node.args.args[0], 'id', '') == 'self',
+                                              getattr(node.args.args[0], 'id', '') == 'cls',
+                                              getattr(node.args.args[0], 'arg', '') == 'self',
+                                              getattr(node.args.args[0], 'arg', '') == 'cls']
+            if any(class_first_position_arguments):
+                return True
+        return False
+
+    @classmethod
+    def _is_class_def(cls, node):
+        """Test if a node is a class definition
+
+        Args:
+            node (ast.stmt): The node under evaluation.
+
+        Returns:
+            bool: True if node is a class definition
+        """
+        r = True if type(node) == ast.ClassDef else False
+        return r
+
+    @classmethod
+    def _get_value_default_to_false(cls, key, rule_conf):
+        """Get the value for a key in a rule_conf
+
+        Args:
+            key (str): the key to get the value for
+            rule_conf (dict): the rule configuration
+
+        Returns:
+            bool
+        """
+        try:
+            if rule_conf[key].lower() == 'true':
+                return True
+            else:
+                return False
+        except KeyError:
+            return False  # if the key is not present the default is false
