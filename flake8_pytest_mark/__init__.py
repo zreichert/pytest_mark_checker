@@ -138,22 +138,36 @@ class MarkChecker(object):
         """
 
         process_conditions = [  # process if any of these are true
-            cls._is_class_def(node) and not cls._check_value_default_to_false('exclude_classes', rule_conf),
-            cls._is_function_def(node) and not cls._check_value_default_to_false('exclude_functions', rule_conf),
-            cls._is_method_def(node) and not cls._check_value_default_to_false('exclude_methods', rule_conf)
+            cls._is_class_def(node) and not cls._get_value_default_to_false('exclude_classes', rule_conf),
+            cls._is_function_def(node) and not cls._get_value_default_to_false('exclude_functions', rule_conf),
+            cls._is_method_def(node) and not cls._get_value_default_to_false('exclude_methods', rule_conf)
         ]
         process_rule_flag = True if any(process_conditions) else False
         return process_rule_flag
 
     @classmethod
     def _is_function_def(cls, node):
-        """"""
+        """Test if a node is a function definition
+
+        Args:
+            node (ast.stmt): The node under evaluation.
+
+        Returns:
+            bool: True if node is a function definition
+        """
         r = True if type(node) == ast.FunctionDef and not cls._is_method_def(node) else False
         return r
 
     @classmethod
     def _is_method_def(cls, node):
-        """"""
+        """Test if a node is a method definition
+
+        Args:
+            node (ast.stmt): The node under evaluation.
+
+        Returns:
+            bool: True if node is a method definition
+        """
         if type(node) == ast.FunctionDef:
             if len(node.args.args) == 0:  # must have more than 0 args to be a method
                 return False
@@ -167,16 +181,32 @@ class MarkChecker(object):
 
     @classmethod
     def _is_class_def(cls, node):
-        """"""
+        """Test if a node is a class definition
+
+        Args:
+            node (ast.stmt): The node under evaluation.
+
+        Returns:
+            bool: True if node is a class definition
+        """
         r = True if type(node) == ast.ClassDef else False
         return r
 
     @classmethod
-    def _check_value_default_to_false(cls, key, rule_conf):
+    def _get_value_default_to_false(cls, key, rule_conf):
+        """Get the value for a key in a rule_conf
+
+        Args:
+            key (str): the key to get the value for
+            rule_conf (dict): the rule configuration
+
+        Returns:
+            bool
+        """
         try:
             if rule_conf[key].lower() == 'true':
                 return True
             else:
                 return False
         except KeyError:
-            return False
+            return False  # if the key is not present the default is false
