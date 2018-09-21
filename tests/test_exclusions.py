@@ -262,7 +262,7 @@ pytest_mark1 = name=test,
     def test_classes_and_methods_excluded_functions_take_args(self, flake8dir):
         """Verify that two test function definition violations are triggered when 'exclude_classes' and
         'exclude_methods' are configured and all test definitions are missing required marks.
-        One function has two args and one takes no args.  
+        One function has two args and one takes no args.
         """
 
         # Setup
@@ -281,7 +281,7 @@ class TestClass(object):
 
 def test_function_with_args(fixture_one, fixture_two):
     pass
-    
+
 def test_function_without_args():
     pass
 """)
