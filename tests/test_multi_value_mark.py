@@ -3,7 +3,7 @@
 # args to only use checks that raise an 'M' prefixed error
 extra_args = ['--select', 'M']
 
-config = """
+config = r"""
 [flake8]
 pytest_mark1 = name=jira,value_regex=[a-zA-Z]*-\d*,allow_multiple_args=true
 
