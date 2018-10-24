@@ -53,7 +53,7 @@ def test_happy_path():
 
 
 def test_asc_517(flake8dir):
-    c = """
+    c = r"""
 [flake8]
 pytest_mark1 = name=test_id,value_match=uuid
 pytest_mark2 = name=jira,value_regex=[a-zA-Z]+-\d+
@@ -71,7 +71,7 @@ def test_my_feature(host):
 
 
 def test_asc_517_both_values_bad(flake8dir):
-    c = """
+    c = r"""
 [flake8]
 pytest_mark1 = name=test_id,value_match=uuid
 pytest_mark2 = name=jira,value_regex=[a-zA-Z]+-\d+
