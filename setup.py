@@ -11,7 +11,7 @@ with open('HISTORY.rst') as history_file:
 
 setup(
     name='flake8-pytest-mark',
-    version='0.5.0',
+    version='1.0.0',
     description='A flake8 plugin that helps check the presence of a PyTest mark',
     long_description=readme + '\n\n' + history,
     author='rpc-automation',
