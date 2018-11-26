@@ -155,8 +155,9 @@ def rule_m7xx(node, rule_name, rule_conf, class_type, **kwargs):
     code = _generate_mark_code(rule_name)
     message = False
     for decorator in _reduce_decorators_by_mark(node.decorator_list, rule_conf['name']):
-        if any(not isinstance(arg, ast.Str) for arg in decorator.args):
-            message = 'M7{} mark values must be strings'.format(code)
+        if isinstance(decorator, ast.Call):
+            if any(not isinstance(arg, ast.Str) for arg in decorator.args):
+                message = 'M7{} mark values must be strings'.format(code)
     if message:
         yield (line_num, 0, message, class_type)
 
@@ -208,9 +209,10 @@ def rule_m9xx(node, rule_name, rule_conf, class_type, **kwargs):
     if 'allow_multiple_args' in rule_conf and rule_conf['allow_multiple_args'].lower() == 'true':
         allow_multiple_args = True
     for decorator in _reduce_decorators_by_mark(node.decorator_list, rule_conf['name']):
-        if not allow_multiple_args and len(decorator.args) > 1:
-            message = 'M9{} you may only specify one argument to @pytest.mark.{}'.format(code, rule_conf['name'])
-            yield (line_num, 0, message, class_type)
+        if isinstance(decorator, ast.Call):
+            if not allow_multiple_args and len(decorator.args) > 1:
+                message = 'M9{} you may only specify one argument to @pytest.mark.{}'.format(code, rule_conf['name'])
+                yield (line_num, 0, message, class_type)
 
 
 # ======================================================================================================================
@@ -230,11 +232,18 @@ def _reduce_decorators_by_mark(decorators, mark):
     """
     reduced = []
     for decorator in decorators:
-        try:
-            if decorator.func.attr == mark and decorator.func.value.value.id == 'pytest':
-                reduced.append(decorator)
-        except AttributeError:
-            pass
+        if isinstance(decorator, ast.Call):
+            try:
+                if decorator.func.attr == mark and decorator.func.value.value.id == 'pytest':
+                    reduced.append(decorator)
+            except AttributeError:
+                pass
+        if isinstance(decorator, ast.Attribute):
+            try:
+                if decorator.attr == mark:
+                    reduced.append(decorator)
+            except AttributeError:
+                pass
     return reduced
 
 

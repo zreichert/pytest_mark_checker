@@ -43,6 +43,40 @@ def test_happy_path():
     assert result.out_lines == ["./example.py:1:1: M601 the mark values '['bad', 'not_good', 'really bad']' do not match the configuration specified by pytest_mark1, Configured regex: '[a-zA-Z]*-\\d*'"]  # noqa
 
 
+def test_mark_with_ast_call(flake8dir):
+    config = r"""
+[flake8]
+pytest_mark1 = name=jira,value_regex=[a-zA-Z]*-\d*,allow_multiple_args=true
+pytest_mark3 = name=test_case_with_steps
+    """
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+@pytest.mark.jira()
+@pytest.mark.test_case_with_steps()
+def test_happy_path():
+    pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == []
+
+
+def test_mark_with_ast_attr(flake8dir):
+    config = r"""
+[flake8]
+pytest_mark1 = name=jira,value_regex=[a-zA-Z]*-\d*,allow_multiple_args=true
+pytest_mark3 = name=test_case_with_steps
+    """
+    flake8dir.make_setup_cfg(config)
+    flake8dir.make_example_py("""
+@pytest.mark.jira()
+@pytest.mark.test_case_with_steps
+def test_happy_path():
+    pass
+    """)
+    result = flake8dir.run_flake8(extra_args)
+    assert result.out_lines == []
+
+
 def test_values_that_are_not_strings(flake8dir):
     flake8dir.make_setup_cfg(config)
     flake8dir.make_example_py("""
