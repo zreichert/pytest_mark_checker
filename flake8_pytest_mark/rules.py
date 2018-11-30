@@ -109,6 +109,9 @@ def rule_m6xx(node, rule_name, rule_conf, class_type, **kwargs):
         values = _get_decorator_args(decorator)
 
         if any(k in rule_conf for k in ('value_regex', 'value_match')):
+            if len(values) == 0:
+                non_matching_values.append('')
+                detailed_error = "Validation supplied, but values absent."
             # iterate through values to test all for matching
             for value in values:
                 if 'value_regex' in rule_conf:
