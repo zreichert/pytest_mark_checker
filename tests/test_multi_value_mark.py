@@ -90,7 +90,12 @@ def test_happy_path():
     pass
     """)
     result = flake8dir.run_flake8(extra_args)
-    assert result.out_lines == [u"./example.py:1:1: M601 the mark values '['']' do not match the configuration specified by pytest_mark1, Validation supplied, but values absent.", u'./example.py:1:1: M701 mark values must be strings']
+    err1 = "./example.py:1:1: M601 the mark values '['']' do " + \
+           "not match the configuration specified by pytest_mark1, " + \
+           "Validation supplied, but values absent."
+    err2 = u'./example.py:1:1: M701 mark values must be strings'
+    expected_results = [err1, err2]
+    assert result.out_lines == expected_results
 
 
 def test_multiple_values_that_are_not_strings(flake8dir):
@@ -116,4 +121,7 @@ def test_happy_path():
     pass
     """)
     result = flake8dir.run_flake8(extra_args)
-    assert result.out_lines == [u"./example.py:1:1: M601 the mark values '['']' do not match the configuration specified by pytest_mark1, Validation supplied, but values absent."]
+    expected_result = "./example.py:1:1: M601 the mark values '['']' do " + \
+                      "not match the configuration specified by pytest_mark1, " + \
+                      "Validation supplied, but values absent."
+    assert result.out_lines == [expected_result]
