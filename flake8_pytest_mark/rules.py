@@ -241,7 +241,7 @@ def _reduce_decorators_by_mark(decorators, mark):
                     reduced.append(decorator)
             except AttributeError:
                 pass
-        if isinstance(decorator, ast.Attribute):
+        elif isinstance(decorator, ast.Attribute):
             try:
                 if decorator.attr == mark:
                     reduced.append(decorator)
